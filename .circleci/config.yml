@@ -28,6 +28,10 @@ commands:
             ls -l e2e
 
 jobs:
+  # a single job to install application and test dependencies
+  # caches node modules and Cypress binary for speed
+  # puts all _local_ files into a workspace
+  # (local files do not include the Cypress binary, but there is a cache!)
   install-cypress:
     executor: ci-image
     steps:
@@ -80,6 +84,9 @@ jobs:
           root: .
           paths: '*'
 
+  # a CI job that grabs the workspace files
+  # plus restores the Cypress binary from cache
+  # and is ready to start testing the local application
   test-cypress:
     executor: ci-image
     steps:
