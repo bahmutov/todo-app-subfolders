@@ -13,9 +13,18 @@ commands:
       - run:
           name: List files
           command: |
+            echo "current folder $(pwd)"
+            echo ""
+            echo "current folder contents"
             ls -l
+            echo ""
+            echo "api folder"
             ls -l api
+            echo ""
+            echo "frontend folder"
             ls -l frontend
+            echo ""
+            echo "e2e folder"
             ls -l e2e
 
 jobs:
