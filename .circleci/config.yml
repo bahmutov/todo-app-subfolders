@@ -57,11 +57,11 @@ jobs:
 
       - run:
           name: Check Cypress
-          command: yarn cypress verify
+          command: npx cypress verify
           working_directory: e2e
       - run:
           name: Cypress info
-          command: yarn cypress info
+          command: npx cypress info
           working_directory: e2e
 
       # save the downloaded NPM modules
@@ -93,7 +93,19 @@ jobs:
             - cypress-v2-{{ checksum "e2e/package-lock.json" }}
       - run:
           name: Check Cypress
-          command: yarn cypress verify
+          command: npx cypress verify
+          working_directory: e2e
+      - run:
+          name: Start API 🎬
+          command: npm start
+          working_directory: api
+      - run:
+          name: Start frontend 🎬
+          command: npm start
+          working_directory: frontend
+      - run:
+          name: Run tests 🚀
+          command: npx cypress run
           working_directory: e2e
 
 workflows:
