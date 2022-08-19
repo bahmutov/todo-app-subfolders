@@ -91,6 +91,10 @@ jobs:
       - restore_cache:
           keys:
             - cypress-v2-{{ checksum "e2e/package-lock.json" }}
+      - run:
+          name: Check Cypress
+          command: yarn cypress verify
+          working_directory: e2e
 
 workflows:
   version: 2.1
