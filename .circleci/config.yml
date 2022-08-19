@@ -83,7 +83,8 @@ jobs:
   test-cypress:
     executor: ci-image
     steps:
-      - attach_workspace
+      - attach_workspace:
+          at: '.'
       - list-files
       # restore the Cypress binary folder
       # (the node_modules folders will come with the workspace)
