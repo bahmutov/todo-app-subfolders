@@ -69,16 +69,33 @@ jobs:
           key: deps-v1-{{ checksum "api/package-lock.json" }}-{{ checksum "e2e/package-lock.json" }}-{{ checksum "frontend/package-lock.json" }}
           paths:
             - ~/.npm
+      # save the installed Cypress binary
       - save_cache:
           key: cypress-v2-{{ checksum "e2e/package-lock.json" }}
           paths:
             - ~/.cache/Cypress
+      # pass all the files (including the local node_modules)
+      # to the next job in the workflow
       - persist_to_workspace:
           root: .
           paths: '*'
+
+  test-cypress:
+    executor: ci-image
+    steps:
+      - attach_workspace
+      - list-files
+      # restore the Cypress binary folder
+      # (the node_modules folders will come with the workspace)
+      - restore_cache:
+          keys:
+            - cypress-v2-{{ checksum "e2e/package-lock.json" }}
 
 workflows:
   version: 2.1
   build-and-test:
     jobs:
       - install-cypress
+      - test-cypress:
+          requires:
+            - install-cypress
