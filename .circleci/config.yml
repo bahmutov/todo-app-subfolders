@@ -1,0 +1,75 @@
+version: 2.1
+
+# https://circleci.com/docs/2.0/executor-intro/
+executors:
+  ci-image:
+    docker:
+      # https://github.com/cypress-io/cypress-docker-images
+      - image: cypress/base:16.14.2
+
+commands:
+  list-files:
+    steps:
+      - run:
+          name: List files
+          command: |
+            ls -l
+            ls -l api
+            ls -l frontend
+            ls -l e2e
+
+jobs:
+  install-cypress:
+    executor: ci-image
+    steps:
+      - checkout
+      - list-files
+      # restore the cache that keeps all NPM modules
+      # let's use the lock files as the checksum key
+      - restore_cache:
+          keys:
+            - deps-v1-{{ checksum "api/package-lock.json" }}-{{ checksum "e2e/package-lock.json" }}-{{ checksum "frontend/package-lock.json" }}
+      # a separate cache for Cypress binary
+      - restore_cache:
+          keys:
+            - cypress-v2-{{ checksum "e2e/package-lock.json" }}
+      - run:
+          name: Install API dependencies
+          command: npm ci
+          working_directory: api
+      - run:
+          name: Install frontend dependencies
+          command: npm ci
+          working_directory: frontend
+      - run:
+          name: Install E2E dependencies
+          command: npm ci
+          working_directory: e2e
+
+      - run:
+          name: Check Cypress
+          command: yarn cypress verify
+          working_directory: e2e
+      - run:
+          name: Cypress info
+          command: yarn cypress info
+          working_directory: e2e
+
+      # save the downloaded NPM modules
+      - save_cache:
+          key: deps-v1-{{ checksum "api/package-lock.json" }}-{{ checksum "e2e/package-lock.json" }}-{{ checksum "frontend/package-lock.json" }}
+          paths:
+            - ~/.npm
+      - save_cache:
+          key: cypress-v2-{{ checksum "e2e/package-lock.json" }}
+          paths:
+            - ~/.cache/Cypress
+      - persist_to_workspace:
+          root: .
+          paths: '*'
+
+workflows:
+  version: 2.1
+  build-and-test:
+    jobs:
+      - install-cypress

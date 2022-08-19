@@ -1,0 +1,21 @@
+{
+  "name": "todo-app-subfolders",
+  "private": true,
+  "version": "1.0.0",
+  "description": "> Separate frontend, api, and Cypress test subfolders",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test --prefix e2e",
+    "start:api": "npm start --prefix api",
+    "start:frontend": "npm start --prefix frontend",
+    "dev": "start-test start:api 3000 start:frontend 5555 cy:open",
+    "cy:open": "npm run cy:open --prefix e2e"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^2.7.1",
+    "start-server-and-test": "^1.14.0"
+  }
+}
