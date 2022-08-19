@@ -99,10 +99,12 @@ jobs:
           name: Start API 🎬
           command: npm start
           working_directory: api
+          background: true
       - run:
           name: Start frontend 🎬
           command: npm start
           working_directory: frontend
+          background: true
       - run:
           name: Run tests 🚀
           command: npx cypress run
