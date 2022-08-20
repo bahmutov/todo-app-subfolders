@@ -1,10 +1,11 @@
+const apiAt = 'http://localhost:3000'
+
 beforeEach(() => {
-  beforeEach(() => {
-    cy.request('POST', '/reset', {
-      todos: []
-    })
+  cy.wait(10_000) // just for fun
+  cy.request('POST', `${apiAt}/reset`, {
+    todos: []
   })
-  cy.visit('localhost:3000')
+  cy.visit('/')
 })
 
 it('loads', () => {
@@ -133,23 +134,6 @@ it('adds one more todo item', () => {
     })
 })
 
-it('saves the added todos', () => {
-  // use a random label
-  const randomLabel = `Item ${Math.random().toString().slice(2, 14)}`
-
-  addItem(randomLabel)
-  // make sure the application has saved the item
-  cy.wait(1000)
-  // get the saved todos using cy.task from the plugins file
-  cy.task('getSavedTodos')
-    .should('have.length.greaterThan', 0)
-    // confirm the list includes an item with "title: randomLabel"
-    .and((list) => {
-      const found = Cypress._.find(list, (item) => item.title === randomLabel)
-      expect(found, 'has the new item').to.be.an('object')
-    })
-})
-
 it('does not allow adding blank todos', () => {
   cy.on('uncaught:exception', (e) => {
     // what will happen if this assertion fails?
@@ -253,10 +237,10 @@ describe('Tests from clean slate', () => {
 it('adds and deletes items using REST API calls', () => {
   // reset the backend data using POST /request call
   // https://on.cypress.io/request
-  cy.request('POST', '/reset', { todos: [] })
+  cy.request('POST', `${apiAt}/reset`, { todos: [] })
   // add an item using POST /todos call
   // passing the title and the completed: false properties
-  cy.request('POST', '/todos', { title: 'first', completed: false })
+  cy.request('POST', `${apiAt}/todos`, { title: 'first', completed: false })
     // from the response get the body and confirm
     // it has the expected properties, including the "id"
     .its('body')
@@ -271,24 +255,30 @@ it('adds and deletes items using REST API calls', () => {
     // and then use the DELETE /todos/:id call to delete it
     // the status of the response should be 200
     .then((id) => {
-      cy.request('GET', `/todos/${id}`).its('body.title').should('eq', 'first')
-      cy.request('DELETE', `/todos/${id}`).its('status').should('equal', 200)
+      cy.request('GET', `${apiAt}/todos/${id}`)
+        .its('body.title')
+        .should('eq', 'first')
+      cy.request('DELETE', `${apiAt}/todos/${id}`)
+        .its('status')
+        .should('equal', 200)
     })
 })
 
 it('completes an item using REST call', () => {
   // reset the todos on the server
-  cy.request('POST', '/reset', { todos: [] })
+  cy.request('POST', `${apiAt}/reset`, { todos: [] })
   // create a new item using cy.request POST /todos call
   // and get its ID from the response
-  cy.request('POST', '/todos', { title: 'my item', completed: false })
+  cy.request('POST', `${apiAt}/todos`, { title: 'my item', completed: false })
     .its('body.id')
     .then((id) => {
       // confirm the item is not completed by fetching it using GET /todos/:id
-      cy.request('GET', `/todos/${id}`).its('body.completed').should('be.false')
+      cy.request('GET', `${apiAt}/todos/${id}`)
+        .its('body.completed')
+        .should('be.false')
       // complete the item using the PATCH /todos/:id call
       // with { completed: true }
-      cy.request('PATCH', `/todos/${id}`, { completed: true })
+      cy.request('PATCH', `${apiAt}/todos/${id}`, { completed: true })
     })
 
   // after completing the item via an API call
@@ -301,7 +291,7 @@ it('completes an item using REST call', () => {
 
 it('creates todos from a fixture', () => {
   // reset the todos on the server
-  cy.request('POST', '/reset', { todos: [] })
+  cy.request('POST', `${apiAt}/reset`, { todos: [] })
   //
   // load a list of todos from a fixture file using cy.fixture
   // https://on.cypress.io/fixture
@@ -310,7 +300,7 @@ it('creates todos from a fixture', () => {
     .then((items) => {
       // for each item make a cy.request to create it on the server
       items.forEach((item) => {
-        cy.request('POST', '/todos', item)
+        cy.request('POST', `${apiAt}/todos`, item)
       })
       // after creating all items,
       // reload the page and confirm each item is shown
@@ -327,23 +317,3 @@ it('creates todos from a fixture', () => {
   // bonus: import the fixture directly into the spec for simplicity
   // read https://glebbahmutov.com/blog/import-cypress-fixtures/
 })
-
-it('checks the meta tags in the head element', () => {
-  // visit the page
-  cy.visit('/')
-  // confirm the page title includes the string "TodoMVC"
-  cy.get('head title').should('include.text', 'TodoMVC')
-  // confirm the meta tag name is "Gleb Bahmutov"
-  cy.get('head meta[name=author]').should(
-    'have.attr',
-    'content',
-    'Gleb Bahmutov'
-  )
-  // confirm the meta tag description includes the expected text "workshop"
-  cy.get('head meta[name=description]')
-    .should('have.attr', 'content')
-    .should('include', 'workshop')
-})
-
-// what a challenge?
-// test more UI at http://todomvc.com/examples/vue/
