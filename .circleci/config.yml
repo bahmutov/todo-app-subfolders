@@ -110,7 +110,7 @@ jobs:
           background: true
       - run:
           name: Start frontend 🎬
-          command: npm start
+          command: npm start -- --no-clipboard
           working_directory: frontend
           background: true
       - run:
