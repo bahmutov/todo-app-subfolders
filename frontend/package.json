@@ -6,12 +6,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "serve -p 5555 public"
+    "start": "serve -p 5555 public",
+    "wait-for-app": "wait-on http-get://localhost:5555 --log --timeout 60000"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "serve": "^14.0.1"
+    "serve": "^14.0.1",
+    "wait-on": "^6.0.1"
   }
 }

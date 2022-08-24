@@ -114,6 +114,10 @@ jobs:
           working_directory: frontend
           background: true
       - run:
+          name: Wait for frontend ⏳
+          command: npm run wait-for-app
+          working_directory: frontend
+      - run:
           name: Run tests 🚀
           command: npx cypress run --record --parallel
           working_directory: e2e
