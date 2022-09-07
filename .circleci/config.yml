@@ -124,7 +124,11 @@ jobs:
           # otherwise do not add any tags
           # https://circleci.com/docs/env-vars#built-in-environment-variables
           command: |
-            npx cypress run --record --parallel --tag $(( $CIRCLE_BRANCH == "main" ? "main" : "other" ))
+            if [ "${CIRCLE_BRANCH}" == "main" ]; then
+              npx cypress run --record --parallel --tag "main"
+            else
+              npx cypress run --record --parallel
+            fi
           working_directory: e2e
 
 workflows:
