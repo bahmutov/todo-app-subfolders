@@ -119,7 +119,16 @@ jobs:
           working_directory: frontend
       - run:
           name: Run tests 🚀
-          command: npx cypress run --record --parallel
+          # if the current branch is "main",
+          # tag this Cypress Dashboard recording with "main"
+          # otherwise do not add any tags
+          # https://circleci.com/docs/env-vars#built-in-environment-variables
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "main" ]; then
+              npx cypress run --record --parallel --tag "main"
+            else
+              npx cypress run --record --parallel
+            fi
           working_directory: e2e
 
 workflows:
